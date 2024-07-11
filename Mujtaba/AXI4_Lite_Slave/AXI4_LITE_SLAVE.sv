@@ -70,13 +70,9 @@ output logic rvalid_o//Indicates that the read data (rdata) and associated respo
 
 
 //Internal memory mapped registers
-//logic [DATA_WIDTH-1:0]register1 = 0;//Address 0x00000000
-//logic [DATA_WIDTH-1:0]register2 = 0;//Address 0x00000004
-//logic [DATA_WIDTH-1:0]register3 = 0;//Address 0x00000008
-//logic [DATA_WIDTH-1:0]register4 = 0;//Address 0x0000000C
-
-
 logic [DATA_WIDTH-1:0]register[3:0];
+
+
 
 //-------------------------------------------------------
 
@@ -117,19 +113,16 @@ always_ff @(posedge clk or posedge reset) begin
                 end
                 //If both address and data are valid, perform the write
                 else begin
-                    /**if (awaddr_i == 32'h00000000) register[7:0] <= wdata_i;
-                    else if (awaddr_i == 32'h00000004) register[15:8] <= wdata_i;
-                    else if (awaddr_i == 32'h00000008) register[23:16] <= wdata_i;
-                    else if (awaddr_i == 32'h0000000C) register[31:24] <= wdata_i;**/
+                 
 
 		    if (awaddr_i == 32'h00000000) 
-                		register[0] <= wdata_i;     // Write to bits 7:0
+                		register[0] <= wdata_i;     
             	    else if (awaddr_i == 32'h00000004) 
-                		register[1] <= wdata_i;    // Write to bits 15:8
+                		register[1] <= wdata_i;   
             	    else if (awaddr_i == 32'h00000008) 
-                		register[2] <= wdata_i;   // Write to bits 23:16
+                		register[2] <= wdata_i;   
                     else if (awaddr_i == 32'h0000000C) 
-                		register[3] <= wdata_i;   // Write to bits 31:24
+                		register[3] <= wdata_i;
 
                     bresp_o <= 2'b00; // (OKAY)
                 end
