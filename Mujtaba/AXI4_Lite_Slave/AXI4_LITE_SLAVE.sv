@@ -123,13 +123,13 @@ always_ff @(posedge clk or posedge reset) begin
                     else if (awaddr_i == 32'h0000000C) register[31:24] <= wdata_i;**/
 
 		    if (awaddr_i == 32'h00000000) 
-                		register[0] <= wdata_i;     // Write to bits 7:0
+                		register[0] <= wdata_i;     
             	    else if (awaddr_i == 32'h00000004) 
-                		register[1] <= wdata_i;    // Write to bits 15:8
+                		register[1] <= wdata_i;    
             	    else if (awaddr_i == 32'h00000008) 
-                		register[2] <= wdata_i;   // Write to bits 23:16
+                		register[2] <= wdata_i;   
                     else if (awaddr_i == 32'h0000000C) 
-                		register[3] <= wdata_i;   // Write to bits 31:24
+                		register[3] <= wdata_i;   
 
                     bresp_o <= 2'b00; // (OKAY)
                 end
