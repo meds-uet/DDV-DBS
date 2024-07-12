@@ -118,19 +118,11 @@ always_ff @(posedge clk or posedge reset) begin
 		    if (awaddr_i == 32'h00000000) 
                 		register[0] <= wdata_i;     
             	    else if (awaddr_i == 32'h00000004) 
-<<<<<<< HEAD
                 		register[1] <= wdata_i;   
             	    else if (awaddr_i == 32'h00000008) 
                 		register[2] <= wdata_i;   
                     else if (awaddr_i == 32'h0000000C) 
                 		register[3] <= wdata_i;
-=======
-                		register[1] <= wdata_i;    
-            	    else if (awaddr_i == 32'h00000008) 
-                		register[2] <= wdata_i;   
-                    else if (awaddr_i == 32'h0000000C) 
-                		register[3] <= wdata_i;   
->>>>>>> 536614259bf5a5837f38d1dc9b9c62ef767aa5b5
 
                     bresp_o <= 2'b00; // (OKAY)
                 end
