@@ -1,0 +1,10 @@
+# vsim -c -do "run -all; quit" fifo_tb 
+# Start time: 13:08:52 on Jul 13,2024
+# Loading sv_std.std
+# Loading work.fifo_tb
+# Loading work.fifo
+# run -all
+# ** Note: $finish    : fifo_tb.sv(45)
+#    Time: 10010 ps  Iteration: 0  Instance: /fifo_tb
+# End time: 13:08:53 on Jul 13,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0

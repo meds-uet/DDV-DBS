@@ -1,0 +1,41 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Fri Jul 12 11:35:42 2024
+[*]
+[dumpfile] "/home/waqar/Desktop/Dream_Big_Course/tasks/fifo/fifo.vcd"
+[dumpfile_mtime] "Fri Jul 12 10:38:32 2024"
+[dumpfile_size] 1876
+[savefile] "/home/waqar/Desktop/Dream_Big_Course/tasks/fifo/fifo.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] -1 -1
+*-5.058894 71 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] $DUP0.
+[treeopen] $DUP0.fifo_tb.
+[treeopen] fifo_tb.
+[sst_width] 233
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 144
+@28
+fifo_tb.dut.clk
+fifo_tb.dut.rst_n
+@22
+#{fifo_tb.dut.d_i[7:0]} fifo_tb.dut.d_i[7] fifo_tb.dut.d_i[6] fifo_tb.dut.d_i[5] fifo_tb.dut.d_i[4] fifo_tb.dut.d_i[3] fifo_tb.dut.d_i[2] fifo_tb.dut.d_i[1] fifo_tb.dut.d_i[0]
+@28
+fifo_tb.dut.current_state[2:0]
+fifo_tb.dut.next_state[2:0]
+fifo_tb.dut.empty
+fifo_tb.dut.rd_en
+@22
+fifo_tb.dut.rd_addr[6:0]
+fifo_tb.dut.fifo_count[128:0]
+fifo_tb.dut.wr_addr[6:0]
+@28
+fifo_tb.dut.wr_en
+@29
+fifo_tb.dut.full
+@22
+fifo_tb.dut.d_o[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

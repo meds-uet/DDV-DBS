@@ -1,0 +1,10 @@
+# vsim -c -do "run -all; quit" shift_reg_tb 
+# Start time: 13:55:00 on Jul 13,2024
+# Loading sv_std.std
+# Loading work.shift_reg_tb
+# Loading work.shift_reg_4b
+# run -all
+# ** Note: $finish    : shift_reg_tb.sv(32)
+#    Time: 160 ps  Iteration: 0  Instance: /shift_reg_tb
+# End time: 13:55:00 on Jul 13,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
