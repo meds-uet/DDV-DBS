@@ -79,4 +79,5 @@ Ensure you have the following installed:
 
 This diagram shows the states:
 
-![SPI Master](diagram.png)
+<img src="diagram.png" width="200">
+
