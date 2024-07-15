@@ -83,7 +83,7 @@ Each test case verifies the correct operation and response of the AXI4-Lite slav
 
 ## Diagram
 
-![AXI4_lite_Slave](diagram.png)
+<img src="diagram.png" width="200">
 
 
 
