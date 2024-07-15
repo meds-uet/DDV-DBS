@@ -79,6 +79,5 @@ Ensure you have the following installed:
 
 This diagram shows the states:
 
-![Rotated Image](diagram.png){:width="200px"}
-
+<img src="diagram.png" width="200">
 
