@@ -79,4 +79,4 @@ Ensure you have the following installed:
 
 This diagram shows the states:
 
-![SPI_Master Diagram](diagram.png)
+![SPI Master](diagram.png)
