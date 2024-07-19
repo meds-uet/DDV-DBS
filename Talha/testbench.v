@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 11.07.2024 20:18:38
+// Create Date: 11.07.2024 20:47:17
 // Design Name: 
 // Module Name: testbench
 // Project Name: 
@@ -20,48 +20,84 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module testbench;
-    reg [15:0] a;         // 16-bit register for input a
-    reg [15:0] b;         // 16-bit register for input b
-    reg [2:0] control;    // 3-bit register for control signal
-    wire [15:0] result;   // 16-bit wire for the output result
 
-    // Instantiate the ALU module
-    ALU16bit uut (
-        .a(a),
-        .b(b),
-        .control(control),
-        .result(result)
+module testbench;
+    parameter WIDTH = 8;  // Specify the width of the counter for the testbench
+    reg clk;              // Clock signal
+    reg rst;              // Reset signal
+    reg up;               // Up control signal
+    reg down;             // Down control signal
+    reg [WIDTH-1:0] initial_value; // Initial value input
+    wire [WIDTH-1:0] count;        // Counter output
+
+    // Instantiate the parameterized counter
+    paramCounter #(WIDTH) uut (
+        .clk(clk),
+        .rst(rst),
+        .up(up),
+        .down(down),
+        .initial_value(initial_value),
+        .count(count)
     );
 
+    // Clock generation
     initial begin
-        // Test Addition
-        a = 16'h0001; b = 16'h0001; control = 3'b000;
-        #10;
-        if (result !== 16'h0002) $display("Addition test failed: %h + %h = %h", a, b, result);
-
-        // Test Subtraction
-        a = 16'h0002; b = 16'h0001; control = 3'b001;
-        #10;
-        if (result !== 16'h0001) $display("Subtraction test failed: %h - %h = %h", a, b, result);
-
-        // Test AND operation
-        a = 16'hFF00; b = 16'h0F0F; control = 3'b010;
-        #10;
-        if (result !== 16'h0F00) $display("AND test failed: %h & %h = %h", a, b, result);
-
-        // Test OR operation
-        a = 16'hFF00; b = 16'h0F0F; control = 3'b011;
-        #10;
-        if (result !== 16'hFF0F) $display("OR test failed: %h | %h = %h", a, b, result);
-
-        // Test XOR operation
-        a = 16'hFF00; b = 16'h0F0F; control = 3'b100;
-        #10;
-        if (result !== 16'hF00F) $display("XOR test failed: %h ^ %h = %h", a, b, result);
-
-        $display("All test cases completed.");
-        $finish;
+        clk = 0;
+        forever #5 clk = ~clk;  // 10 time units clock period
     end
-endmodule
 
+    // Test sequence
+    initial begin
+        // Initialize signals
+        rst = 0;
+        up = 0;
+        down = 0;
+        initial_value = 8'h0;
+
+        // Apply reset and set initial value to 8
+        rst = 1;
+        initial_value = 8'h08;
+        #10;
+        rst = 0;
+        #10;
+
+        // Test up count
+        up = 1;
+        #50;
+        up = 0;
+        #10;
+
+        // Test down count
+        down = 1;
+        #50;
+        down = 0;
+        #10;
+
+        // Apply reset again and set initial value to 16
+        rst = 1;
+        initial_value = 8'h10;
+        #10;
+        rst = 0;
+        #10;
+
+        // Test up count again
+        up = 1;
+        #50;
+        up = 0;
+        #10;
+
+        // Test down count again
+        down = 1;
+        #50;
+        down = 0;
+        #10;
+
+        $finish;  // End the simulation
+    end
+
+    // Monitor the counter value
+    initial begin
+        $monitor("Time=%0t, count=%d, up=%b, down=%b, rst=%b, initial_value=%d", $time, count, up, down, rst, initial_value);
+    end
+
+endmodule
