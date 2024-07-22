@@ -1,0 +1,52 @@
+module random_alu_tb();
+reg clk;
+reg reset;
+reg  a;
+reg  b;
+reg sel;
+wire out;
+
+//instentiation
+.clk(clk),
+.reset(reset),
+.a(a),
+.b(b),
+.sel(sel),
+.out(out)
+);
+
+//clock generation
+clk=0;
+forever #5 clk=~clk;
+
+//random function
+initial begin
+int numbers=100;
+for(i=0;i<numbers;i++) begin
+a=$urandom;
+b=$urandom;
+sel=$urandom %4;
+#10;
+
+//Assertions to  check results.
+case(sel) 
+3'b000 : assert(out==a+b);
+3'b001 : assert(out==a-b);
+3'b010 : assert(out==a&b);
+3'b011 : assert(out==a|b);
+3'b100 : assert(out==a^b);
+endcase
+end
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,149 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 07/10/2024 01:54:55 PM
+// Design Name: 
+// Module Name: axi4_lite_design_tb
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+module tb_axi4();
+
+// Clock and reset signals
+logic clk;
+logic reset;
+
+// Write address channel signals
+logic [31:0] awaddr;
+logic [2:0] awprot;
+logic awvalid;
+logic awready;
+
+// Write data channel signals
+logic [31:0] wdata;
+logic wvalid;
+logic wready;
+
+// Read address channel signals
+logic [31:0] araddr;
+logic [2:0] arprot;
+logic arvalid;
+logic arready;
+
+// Write response channel signals
+logic [1:0] bres;
+logic bvalid;
+logic bready;
+
+// Read response channel signals
+logic [31:0] rdata;
+logic [1:0] rres;
+logic rvalid;
+logic rready;
+
+// Instantiate the DUT (Device Under Test)
+AXI4lite uut (
+    .clk(clk),
+    .reset(reset),
+    .awaddr(awaddr),
+    .awprot(awprot),
+    .awvalid(awvalid),
+    .awready(awready),
+    .wdata(wdata),
+    .wvalid(wvalid),
+    .wready(wready),
+    .araddr(araddr),
+    .arprot(arprot),
+    .arvalid(arvalid),
+    .arready(arready),
+    .bres(bres),
+    .bvalid(bvalid),
+    .bready(bready),
+    .rdata(rdata),
+    .rres(rres),
+    .rvalid(rvalid),
+    .rready(rready)
+);
+
+// Clock generation
+always #5 clk = ~clk;
+
+initial begin
+    // Initialize signals
+    clk = 0;
+    reset = 1;
+    awaddr = 0;
+    awprot = 3'b000;
+    awvalid = 0;
+    wdata = 0;
+    wvalid = 0;
+    araddr = 0;
+    arprot = 3'b000;
+    arvalid = 0;
+    bready = 1;
+    rready = 1;
+    //rvalid = 1;
+
+    // Reset DUT
+    #10;
+    reset = 0;
+
+    // Write transaction
+    #10;
+    awaddr = 32'h12345678;
+    awvalid = 1;
+    wdata = 32'hDEADBEEF;
+    wvalid = 1;
+    #10;
+    awvalid = 0;
+    wvalid = 0;
+
+    // Wait for write response
+    wait(bvalid);
+    //bvalid=1;
+    #10;
+    //bvalid=1;
+    //#10;
+    bready = 1;
+    #10;
+    bready = 0;
+
+    // Read transaction
+    #10;
+    araddr = 32'h0000_0004;
+    arvalid = 1;
+    #10;
+    arvalid = 0;
+
+    // Wait for read data
+    wait(rvalid);
+    #10;
+    rready = 1;
+    #10;
+    rready = 0;
+    #10;
+
+    // Finish simulation
+    //#100;
+    $finish;
+end
+
+// Monitor signals
+initial begin
+    $monitor("Time: %0t | awaddr: %h | awvalid: %b | awready: %b | wdata: %h | wvalid: %b | wready: %b | araddr: %h | arvalid: %b | arready: %b | rdata: %h | rvalid: %b | rready: %b | bres: %h | bvalid: %b | bready: %b | rres: %h",
+             $time, awaddr, awvalid, awready, wdata, wvalid, wready, araddr, arvalid, arready, rdata, rvalid, rready, bres, bvalid, bready, rres);
+end
+
+endmodule
+

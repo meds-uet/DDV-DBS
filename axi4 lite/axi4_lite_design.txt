@@ -1,0 +1,237 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 07/10/2024 01:53:36 PM
+// Design Name: 
+// Module Name: axi4_lite_design
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+//`timescale 1ns / 1ps`
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 07/07/2024 12:00:36 PM
+// Design Name: 
+// Module Name: axi4
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+module AXI4lite(
+
+/////////////////////////////for write operations.../////////////
+//write address chanel..//
+input logic clk,
+input logic reset,
+input logic [31:0]awaddr,
+input logic [2:0]awprot,
+input logic awvalid,
+output logic awready,
+//write data chanel..//
+input logic [31:0]wdata,
+input logic [3:0]wstrb,
+input logic wvalid,
+output logic wready,
+//////////////////////////////read operations.../////////////////
+input logic [31:0]araddr,
+input logic [2:0]arprot,
+input logic arvalid,
+output logic arready,
+//write response chanel..//
+output logic [1:0]bres,
+output logic bvalid,
+input logic bready,
+//read response chanel..//
+output logic [31:0]rdata,
+output logic [1:0]rres,
+output logic rvalid,
+input logic rready
+//output logic [31:0]write_addr,
+//output logic [31:0]read_addr
+);
+//Raw memory//
+reg [31:0]mem[0:7];
+//register to store (awddr) sent by master//
+reg [31:0]write_addr;
+//register to store (araddr) sent by master//
+reg [31:0]read_addr;
+//enable signal for  write and read//
+reg write_enable;
+reg read_enable;
+
+
+
+
+////////logic for write address chanel/////
+always@(posedge clk)begin
+if(reset)begin
+write_enable <=0;
+write_addr <=0;
+awready <=0;
+end
+else begin
+if(awvalid)begin
+awready <= 1;
+write_addr <= awaddr;
+write_enable <=1;
+end
+else  begin
+awready <= 0;
+write_enable <= 0;
+end
+end
+end
+//done
+
+
+////////logic for write data chanel/////
+always@(posedge clk)begin
+if(reset)begin
+wready <=0;
+bvalid <=0;
+end
+else begin
+if(wvalid)begin
+wready <=1;
+
+//(wstrb) this signal is used to specificaly accecc specific part of wdata because we some time intrested to save specific part of wdata not to store all 32 bits in memory and eventully it stores the space and also enhance the performence of the interfase///
+/*if (wstrb[0]) mem [write_addr[7:0]][7:0] <= wdata[7:0];
+if (wstrb[1]) mem [write_addr[7:0]][15:8] <= wdata[15:8];
+if (wstrb[2]) mem [write_addr[7:0]][23:16] <= wdata[23:16];
+if (wstrb[3]) mem [write_addr[7:0]][31:24] <= wdata[31:24];*/
+mem[write_addr[31:0]] <= wdata;
+end
+else begin
+wready <=0;
+bvalid <=1;
+end
+end
+end
+
+////////logic for write response chanel/////
+always@(posedge clk)begin
+if (reset)begin
+bres <=0;
+bvalid <=0;
+end
+else begin
+if(bvalid & bready)begin
+bvalid <=1;
+//Normal/privilaged (write protection)//
+if (awprot==3'b000)begin
+bres <= 2'b00;//okay respone
+end
+//Seure/Non-secure (write protection)//
+if (awprot==3'b001)begin
+bres <= 2'b00;//okay respone
+end
+//instruction/Data (write protection)//
+if (awprot==3'b010)begin
+bres <= 2'b00;//okay respone
+end
+if (awprot==3'b011)begin
+bres <= 2'b11;//okay respone
+end
+if (awprot==3'b100)begin
+bres <= 2'b11;//okay respone
+end
+if (awprot==3'b101)begin
+bres <= 2'b11;//okay respone
+end
+if (awprot==3'b110)begin
+bres <= 2'b11;//okay respone
+end
+if (awprot==3'b111)begin
+bres <= 2'b11;//okay respone
+end
+//else  begin
+//bres <= 2'b11;//error response
+//end
+//else if(bready & bvalid)begin
+//bvalid <=0;
+//end
+end
+end
+end
+
+
+////////logic for read address chanel/////
+always@(posedge clk)begin
+if (reset)begin
+arready <=0;
+read_addr <=0;
+read_enable <=0;
+end
+else begin
+if (arvalid)begin
+arready <=1;
+read_addr <= araddr;
+read_enable <=1;
+end 
+else  begin
+arready <= 0;
+read_enable <= 0;
+end
+end
+end
+
+////////logic for read data chanel/////
+always@(posedge clk)begin
+if (reset)begin
+rdata <=0;
+rres <=0;
+rvalid <=0;
+end
+else begin
+if (rready)begin
+rvalid <=1;
+rdata <= mem[read_addr[31:0]];
+read_enable<=1;
+//Normal/privilaged (write protection)//
+if (arprot==3'b000)begin
+rres <= 2'b00;//okay respone
+end
+//Seure/Non-secure (write protection)//
+else if (arprot==3'b001)begin
+rres <= 2'b00;//okay respone
+end
+//instruction/Data (write protection)//
+else if (arprot==3'b010)begin
+rres <= 2'b00;//okay respone
+end
+else  begin
+rres <= 2'b11;//error response
+end
+//else if (rready & rvalid)begin
+//rvalid <=0;
+//end
+end
+end
+end
+endmodule

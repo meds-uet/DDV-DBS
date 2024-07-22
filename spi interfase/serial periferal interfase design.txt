@@ -1,0 +1,93 @@
+module spi_master (
+  input  logic       clk,
+  input  logic       rst_n,
+  input  logic       start_transaction,
+  input  logic [7:0] tx_data,
+  output logic [7:0] rx_data,
+  output logic       transaction_done,
+  output logic       sclk,
+  output logic       mosi,
+  input  logic       miso,
+  output logic       ss_n
+);
+
+  typedef enum logic [1:0] {IDLE, TRANSMIT, FINISH} state_t;
+  state_t current_state, next_state;
+
+  logic [7:0] tx_shift_reg, rx_shift_reg;
+  logic [2:0] bit_count;
+  logic sclk_div;
+
+  // sclk generation
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      sclk_div <= 1'b0;
+      sclk <= 1'b0;
+    end else begin
+      sclk_div <= ~sclk_div;
+      sclk <= sclk_div;
+    end
+  end
+  // State transition logic
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      current_state <= IDLE;
+      next_state<=IDLE;
+      ss_n <= 1'b1;
+       tx_shift_reg <= 8'b0;
+       rx_shift_reg <= 8'b0;
+        mosi <= tx_shift_reg[7];
+       //ss_n <= 1'b1;
+       bit_count <= 3'b0;
+      transaction_done <= 1'b1;
+    end else begin
+     current_state <= next_state;
+     ss_n<=0;
+     case (current_state)
+     IDLE: begin
+          if (start_transaction) begin
+            next_state <= TRANSMIT;
+           ss_n <= 0;
+           // mosi <= tx_shift_reg[7];
+            tx_shift_reg <= tx_data;
+            //rx_data <= rx_shift_reg;
+            
+            // rx_data = rx_shift_reg;
+            bit_count <= 3'b0;
+            //rx_shift_reg <= 8'b0;
+          end
+        end
+        //endcase
+        //case(current_state)
+        TRANSMIT: begin
+          if (sclk_div) begin
+          //tx_shift_reg <= tx_data;
+            mosi <= tx_shift_reg[7];
+            tx_shift_reg <= {tx_shift_reg,1'b1};
+            bit_count <= bit_count + 1;
+            //for (int i=0; i<7; i++)
+              //  tx_shift_reg[i+1] <= tx_shift_reg[i];
+            //tx_shift_reg[0] <= 1'b0;
+           // rx_shift_reg <= {rx_shift_reg,miso}
+            //rx_data <= rx_shift_reg;
+             rx_shift_reg <= {rx_shift_reg,miso};
+             // bit_count <= bit_count 
+            //rx_shift_reg <= {rx_shift_reg,miso};
+            next_state <= FINISH;
+            end
+            end
+        // endcase
+
+//case(current_state)
+         // ss_n = 0;     
+        FINISH: begin
+          next_state <= IDLE;
+          transaction_done <= 1;
+          ss_n<=1;
+        end
+      endcase
+    end
+  end
+ assign rx_data = rx_shift_reg;
+ //assign  mosi = tx_shift_reg[7];
+endmodule

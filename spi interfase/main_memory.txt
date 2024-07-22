@@ -1,0 +1,41 @@
+module main_memory (
+input logic clk,
+input logic rst,
+
+input logic [31:0] address_in,
+
+input logic mem_read_req,
+input logic mem_write_req,
+
+output logic mem_read_ack,
+output logic mem_write_ack,
+
+input logic [31:0] mem_write_data,
+input logic [31:0] mem_read_data
+);
+
+reg [159:0] main_mem [0:266];
+
+always_ff@(posedge clk)begin
+if(!rst)begin
+mem_read_ack<=0;
+mem_write_ack<=0;
+end
+else begin
+if(mem_read_req)begin
+mem_read_data<=main_mem[address_in];
+mem_read_ack<=1;
+end else begin
+mem_read_ack<=0;
+end
+if (mem_write_req) begin
+main_mem[address_in]<=mem_write_data;
+mem_write_ack<=1;
+end 
+else begin
+mem_write_ack<=0;
+end
+end
+end
+endmodule
+
