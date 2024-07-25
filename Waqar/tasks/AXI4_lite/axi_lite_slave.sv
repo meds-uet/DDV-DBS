@@ -137,14 +137,6 @@ module axi_lite_slave#(parameter MEMORY_SIZE = 1024,
                 if(wvalid & wready) begin
                     write_strb  <= wstrb;
                     data_reg_1  <= wdata;
-                    /*case(write_strb)
-                    4'b0001: data_reg_1[7:0]   <= wdata[7:0];
-                    4'b0010: data_reg_1[15:8]  <= wdata[15:8];
-                    4'b0100: data_reg_1[23:16] <= wdata[23:16];
-                    4'b1000: data_reg_1[31:24] <= wdata[31:24];
-                    endcase*/
-                    //awready <= 0;
-                    //wready  <= 0;
                     write_state <= RESPONSE;
                 end
 
@@ -157,12 +149,6 @@ module axi_lite_slave#(parameter MEMORY_SIZE = 1024,
             RESPONSE: begin
                 if(bready) begin
                     memory[write_addr] <= data_reg_1;
-                    /*case (write_strb)
-                    4'b0001: memory[write_addr][7:0]   <= data_reg_1[7:0];
-                    4'b0010: memory[write_addr][15:8]  <= data_reg_1[15:8];
-                    4'b0100: memory[write_addr][23:16] <= data_reg_1[23:16];
-                    4'b1000: memory[write_addr][31:24] <= data_reg_1[31:24];
-                    endcase*/
                     bvalid <= 1;
                     awready <= 0;
                     wready  <= 0;
