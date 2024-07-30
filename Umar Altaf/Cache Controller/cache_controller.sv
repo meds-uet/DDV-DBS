@@ -51,8 +51,8 @@ output logic stall// stall from processor when cache controller intreacting with
  logic flush_done;
 // logic [31:0]m_addr;
  logic flush;
- logic [7:0]i_i;
- logic [7:0]i;
+ logic [8:0]i_i;
+ logic [8:0]i;
  logic [19:0] tag_of_cache;
  logic [127:0]tmp_data;
  logic tmp_write_req;
@@ -70,6 +70,7 @@ always_ff @(posedge clk or negedge rst_n) begin
                        mem_read<=0;
                        stall<=0;
                        flush<=0;
+                       i_i<=0;
                        i<=0;
                     
                        tag_of_cache<=20'h00000;
@@ -229,7 +230,7 @@ end
 if (flush)// if request come form the flush state 
 begin
 mem_write<=1;//memory signals to write 
-m_addr<={tag_valid_dirty[i_i][21:2],i_i,4'b0000};//compile the addess from the index where found the dirty bit one
+m_addr<={tag_valid_dirty[i_i][21:2],i_i[7:0],4'b0000};//compile the addess from the index where found the dirty bit one
 m_w_data<=cache_memory[i_i];// send back the data from cache to memory where dirty bit was high
 
 end
@@ -245,6 +246,7 @@ begin
 stall<=0;//after memoery ack stall is removed
 mem_write<=0;
 tag_valid_dirty[i_i][1:0]<=2'b00; // @ mem ack  vaild bit of metadata is zero @ i index
+i<=i+1'b1;;//assign i to a register to use later
 next_state<=FLUSH;
 end
 else if(!main_mem_ack)//if memory isn't ack then stay on write back state
@@ -255,23 +257,32 @@ end
 end    
 FLUSH:    
 begin
-if (flush )
+$display(" value of i after incremnet %d",i);
+if (flush &&i<256 )
 begin
-//for (int i=0;i<3;i++)//if flush request came then iterate in the index in the cache
+//$display("tag dirty bit,%b and value of i %d",tag_valid_dirty[i][0],i);
+//for (i=0;i<3;i++)//if flush request came then iterate in the index in the cache
+//begin
 
-$display("tag dirty bit,%b and value of i %d",tag_valid_dirty[i][0],i);
     if (tag_valid_dirty[i][0]==1)//if dirty bit is high on that index
     begin
-    
-i_i<=i;//assign i to a register to use later
-i=i+1;
+    i_i<=i;
+
+//$display(" value of i_i %d",i_i);
 stall<=1;
 next_state<=WRITE_BACK;//goto write back to write to memory
 
-    end 
+//    end 
    
+    end
+    else 
+    begin
+    next_state<=FLUSH;//if dirty bit is low saty on flush till its not complete  
+    end
+
+
 end
-else if (i==255)
+else if (i>=256)
 //(i_i==3)
 begin
 flush<=0;
@@ -279,12 +290,11 @@ flush_done<=1;//showimg flush is done
 next_state<=IDLE;//go  back to idle 
 end
 
-
-
 end 
 endcase
 end 
 assign tag_v_d=tag_valid_dirty[index_p];// tag,index and offset stored in metadata reference to cache memory 
+//assign i_i=i;
 //assign p_data=read_req ?read_data:1'bz;
 //assign addr=cache_miss ?m_addr:1'bz;
 //assign r_data=(flush || cache_miss) ?r_r_data:1'bz;  

@@ -97,7 +97,8 @@ memory mm(
  @(posedge clk);
           @(posedge clk);
           
- for (int i=0;i<2;i++)
+ for (int k=0;k<5;k++)//writing on 5 locations of cache making dirty bit high
+ //also index 0 write is tested
 begin
     // Example stimulus
 
@@ -105,7 +106,7 @@ begin
     // Test write request
     
     write_req = 1;
-    p_addr = 32'hABCD_0000+(i*8'h10);
+    p_addr = 32'hABCD_0000+(k*(8'h10));
     p_w_data = 32'hABCD_EF01;   
 //     @(posedge clk);
 //       @(posedge clk);
@@ -116,35 +117,102 @@ begin
      write_req=0 ;
      
       @(posedge clk);
-          @(posedge clk);
-          @(posedge clk);
-               @(posedge clk);
-               @(posedge clk);
-                    @(posedge clk);
-                      @(posedge clk);
-                                 @(posedge clk);
-                                      @(posedge clk);
-                     
-//      read_req = 1;
-//                        p_addr = 32'h0000_1000+i*8'h10; 
-//                        @(posedge clk);
-//                            @(posedge clk);
-//                   read_req = 0;        
- end
-    // Additional stimulus can be added here
-    @(posedge clk);
-cache_flush=1;
- @(posedge clk);
-         @(posedge clk);
-         @(posedge clk);
-              @(posedge clk);
-              @(posedge clk);
-                   @(posedge clk);
-                     @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+         
+
+ end  
+     @(posedge clk);
+                               read_req = 1;// invalid address
+                               p_addr = 32'hABCD_ff01;
+                               p_w_data = 32'hABCD_EF01;  
+                               @(posedge clk);
+                               @(posedge clk);
+                               read_req=0 ;                                                                 
                                 @(posedge clk);
-                                     @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   
+  @(posedge clk);
+   for (int k=0;k<2;k++)
+   begin
+                               write_req = 1;// checking same address multiple calls 
+                               p_addr = 32'hABCD_0000;
+                               p_w_data = 32'hABCD_EF01;  
+                               @(posedge clk);
+                               @(posedge clk);
+                               write_req=0 ;                                                                 
+                              @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);
+                                   @(posedge clk);                                              
+end
+                             write_req = 1;// write at index 255
+                             p_addr = 32'hABCD_0ff0;
+                             p_w_data = 32'hABCD_EF01;  
+                             @(posedge clk);
+                             @(posedge clk);
+                             write_req=0 ;                                                                 
+                             @(posedge clk);
+                             @(posedge clk);
+                             @(posedge clk);
+                             @(posedge clk);
+                             @(posedge clk);
+                             @(posedge clk);
+                             @(posedge clk);
+                             @(posedge clk);
+                             @(posedge clk);   
+                                                                                                     
+
+                              
+                                                 
+  @(posedge clk);
+                            read_req = 1;// checkng read hit
+                            p_addr = 32'h2af3_4000;
+                            p_w_data = 32'hABCD_EF01;  
+                            @(posedge clk);
+                            @(posedge clk);
+                            read_req=0 ;                                                                 
+                            @(posedge clk);
+                              @(posedge clk);                                                         
+                                 @(posedge clk);
+                                                         @(posedge clk);
+                                                         @(posedge clk);
+                                                         @(posedge clk);
+                                                         @(posedge clk);
+                                                         @(posedge clk);
+                                                         @(posedge clk);
+                                                         @(posedge clk);                         
+                                                        
+//cache_flush=1;
+// @(posedge clk);
+//         @(posedge clk);
+//                @(posedge clk);
+//              @(posedge clk);
+//              @(posedge clk);
+//                   @(posedge clk);
+//                     @(posedge clk);
+//                                @(posedge clk);
+//                                     @(posedge clk);
     // End of simulation
-    repeat (20) @(posedge clk);
+    repeat (500) @(posedge clk);
       
     $finish;
   end
