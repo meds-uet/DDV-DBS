@@ -12,7 +12,7 @@ logic main_mem_ack;
 
 logic hit;
 logic miss;
-logic [DATA_WIDTH-1:0]data_out;
+logic [128-1:0]data_out;
 
 logic read_done;
 logic write_done;
@@ -74,15 +74,15 @@ task check_read_hit_miss();
 
   //Read Miss and Read Hit testing
   cpu_request.write = 1'b1;
-  address = 32'h0000_0002;
-  data_in = 32'hFFFF_FFFF;
+  address = 32'h0000_0003;
+  data_in = 32'hFAFA_ADAD;
   main_mem_ack = 1'b0;
 
   @(posedge clk);
   main_mem_ack = 1'b1;
 
   @(posedge clk);
-  wait(miss) $display("Data not dound in cache , it's a read miss");
+  wait(miss) $display("[1]TEST PASSED (READ MISS)");
 
   @(posedge clk);
 
@@ -94,10 +94,10 @@ task check_read_hit_miss();
 
   @(posedge clk);
   cpu_request.read = 1'b1;
-  address = 32'h0000_0002;
+  address = 32'h0000_0003;
   wait(read_done) begin
-      if(data_out == data_in) $display("Data found in the cache , it's a read hit");
-      else $display("Data not found in the cache , it's a read miss");
+      if(data_out == data_in) $display("[2]TEST PASSED (READ HIT)");
+      else $display("Error : Data not found in the cache , it's a read miss");
   end
 
  
@@ -124,7 +124,7 @@ main_mem_ack = 1'b1;
 
 wait(miss) begin
       main_mem_ack = 1'b0;
-      $display("Cache line is not valid, it's a write miss");
+      $display("[4]TEST PASSED (WRITE MISS)");
 end
 
 @(posedge clk);
@@ -140,8 +140,8 @@ task check_write_hit();
 
     // Write Hit testing
     cpu_request.write = 1'b1;
-    address = 32'h0000_0002;
-    data_in = 32'hAAAA_AAAA;
+    address = 32'h0000_0032;
+    data_in = 32'hFFFF_FFFF;
     main_mem_ack = 1'b0;
 
     @(posedge clk);
@@ -149,7 +149,7 @@ task check_write_hit();
 
     wait(hit) begin
         main_mem_ack = 1'b0;
-        $display("Data found in the cache, it's a write hit");
+        $display("[3]TEST PASSED (WRITE HIT)");
     end
 
     @(posedge clk);
@@ -157,26 +157,16 @@ task check_write_hit();
 endtask
 
 
-//write operation
-task data_write(logic [DATA_WIDTH-1:0]data);
-
-    cpu_request.write = 1'b1;
-    address = 32'h0000_0002;
-    data_in = data;
-    main_mem_ack = 1'b1;
-
-endtask
-
 
 
 //reset
 task reset_cache();
     reset = 1;
-    @(posedge clk);
-    @(posedge clk);
-    @(posedge clk);
+    #50
     reset = 0;
 endtask
+
+
 
 
 
@@ -189,16 +179,18 @@ initial begin
 
   reset_cache();
 
+
+  check_write_hit();
+
   //check_read_hit_miss();
-  //@(posedge clk);
-  //@(posedge clk);
-  //check_write_hit();
-  //@(posedge clk);
-  check_write_miss();
 
+ //check_write_miss();
 
+  //$display("ALL TEST PASSED SUCCESSFULLY");
 
 end
 
 
 endmodule
+
+
