@@ -1,0 +1,10 @@
+This repository contains the SystemVerilog code for a parameterized counter along with its test bench. The counter can be configured to count up or down, with adjustable bit-width and maximum count value.
+
+Parameterized Counter:
+
+The parameterized counter module is highly configurable, allowing for various bit-widths and count modes. It can be used in various digital design applications requiring flexible counting mechanisms.
+
+It cantains 2 files:
+
+- The design file named "counter.sv".
+- The test bench file name "tb.sv".

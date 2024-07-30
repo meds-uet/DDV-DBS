@@ -1,0 +1,10 @@
+16-Bit Arithmetic Logic Unit (ALU):
+
+This repository contains the SystemVerilog code for a 16-bit Arithmetic Logic Unit (ALU) along with its test bench. The ALU performs a variety of arithmetic and logical operations on 16-bit inputs.
+
+16-Bit ALU:
+
+The 16-bit ALU module performs a variety of operations such as addition, subtraction, bitwise AND, bitwise OR, and others on 16-bit inputs based on the operation select signal. But I used few of operations in this design.
+
+
+- The design named "ALU.sv".
