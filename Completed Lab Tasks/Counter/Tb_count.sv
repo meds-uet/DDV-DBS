@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
@@ -74,3 +75,5 @@ module Tb_count#(parameter w=4);
 
 endmodule
 
+=======
+>>>>>>> 29c897e (Completed Lab Tasks)
