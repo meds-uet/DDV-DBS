@@ -1,0 +1,172 @@
+module Cache_controller #(
+    parameter ADDRESS_WIDTH = 32,  // size of Data Address 
+    parameter DATA_WIDTH    = 32,  // size of Data Bus
+    parameter CACHE_SIZE    = 256, // cache length
+    parameter OFFSET_SIZE   = 4,   // cache width in words (block size)
+    parameter INDEX_SIZE    = 8,   // cache index size
+    parameter MEMORY_SIZE   = 1024 // Main memory size in words 
+)(
+    input logic clk,
+    input logic rst_n,
+    // Processor interface 
+    input logic [ADDRESS_WIDTH-1:0] cpu_address,
+    input logic  cpu_wr_request, // write request if 1
+    input logic  cpu_rd_request, // read request if 1
+    input logic [DATA_WIDTH -1:0] cpu_wr_data, // CPU write data to cache 
+    output logic [DATA_WIDTH -1:0] cpu_rd_data // CPU read data from cache 
+);
+
+    // Cache memory: each row has OFFSET_SIZE words, total rows are CACHE_SIZE
+    logic [DATA_WIDTH-1:0] cache_memory [CACHE_SIZE-1:0] [OFFSET_SIZE-1:0];
+    // Tag memory array
+    logic [ADDRESS_WIDTH-INDEX_SIZE-OFFSET_SIZE-1:0] tag_memory [CACHE_SIZE-1:0];
+    // Valid bit vector
+    logic valid_bit_vector [CACHE_SIZE-1:0];
+    // Dirty bit vector
+    logic dirty_bit_vector [CACHE_SIZE-1:0];
+
+    // Main memory storage
+    logic [DATA_WIDTH-1:0] memory [MEMORY_SIZE-1:0];
+
+    // Signals
+    logic [OFFSET_SIZE-1:0] offset;
+    logic [INDEX_SIZE-1:0] index;
+    logic [ADDRESS_WIDTH-INDEX_SIZE-OFFSET_SIZE-1:0] tag;
+    logic [DATA_WIDTH-1:0] rd_mem_reg;
+    logic cache_hit;
+    logic cache_miss;
+    logic main_mem_ack;
+    logic rd_mem_request, wr_mem_request;
+
+    // Cache memory signals decomposition from cpu_address
+    assign offset = cpu_address[OFFSET_SIZE-1:0];
+    assign index  = cpu_address[INDEX_SIZE+OFFSET_SIZE-1:OFFSET_SIZE];
+    assign tag    = cpu_address[ADDRESS_WIDTH-1:INDEX_SIZE+OFFSET_SIZE];
+
+    // Cache controller states encoding
+    typedef enum logic [2:0] {
+        Idle = 3'b000,
+        Process_Request = 3'b001,
+        Cache_Allocate  = 3'b010,
+        Writeback       = 3'b011, 
+        Flush           = 3'b100
+    } state_t;
+    
+    state_t Present_state, Next_state;
+
+    // Cache memory initialization
+    always_ff @(posedge clk or negedge rst_n) begin
+        if(~rst_n) begin
+            cpu_rd_data <= 0;
+            for (int i = 0; i < CACHE_SIZE; i++) begin
+                valid_bit_vector[i] <= 0;
+                dirty_bit_vector[i] <= 0;
+                tag_memory[i]       <= 0;
+                for (int j = 0; j < OFFSET_SIZE; j++) begin
+                    cache_memory[i][j] <= 32'b0;
+                end
+            end
+            Present_state <= Idle;
+            cache_hit      <= 0;
+            rd_mem_request <= 0;
+            wr_mem_request <= 0;
+        end else begin
+            Present_state <= Next_state;
+        end
+    end
+
+    // Next state logic
+    always_comb begin
+        case(Present_state)
+            Idle: begin
+                if(cpu_wr_request || cpu_rd_request) begin
+                    Next_state = Process_Request;
+                end else begin
+                    Next_state = Idle;
+                end
+            end
+            
+            Process_Request: begin
+                if(cache_hit) begin
+                    Next_state = Idle;
+                end else if(cache_miss && !dirty_bit_vector[index]) begin
+                    Next_state = Cache_Allocate;
+                end else if(cache_miss && dirty_bit_vector[index]) begin
+                    Next_state = Writeback;
+                end else begin
+                    Next_state = Idle;
+                end
+            end
+            
+            Cache_Allocate: begin
+                if(main_mem_ack) begin
+                    Next_state = Process_Request;
+                end else begin
+                    Next_state = Cache_Allocate;
+                end
+            end
+            
+            Writeback: begin
+                if(main_mem_ack) begin
+                    Next_state = Cache_Allocate;
+                end else begin
+                    Next_state = Writeback;
+                end
+            end
+            
+            Flush: begin
+                Next_state = Idle; // Implement flush state logic as needed
+            end
+            
+            default: Next_state = Idle;
+        endcase
+    end
+
+    // Cache hit/miss logic and main memory interface
+    always_ff @(posedge clk or negedge rst_n) begin
+        if(~rst_n) begin
+            cache_hit  <= 0;
+            cache_miss <= 0;
+            rd_mem_request <= 0;
+            wr_mem_request <= 0;
+        end else begin
+            if(cpu_rd_request || cpu_wr_request) begin
+                if(valid_bit_vector[index] && (tag_memory[index] == tag)) begin
+                    cache_hit <= 1;
+                    cache_miss <= 0;
+                    if(cpu_rd_request) begin
+                        cpu_rd_data <= cache_memory[index][offset];
+                    end
+                end else begin
+                    cache_hit <= 0;
+                    cache_miss <= 1;
+                    rd_mem_request <= 1;
+                end
+            end else begin
+                cache_hit  <= 0;
+                cache_miss <= 0;
+            end
+        end
+    end
+
+    // Main memory read/write handling
+    always_ff @(posedge clk or negedge rst_n) begin
+        if(~rst_n) begin
+            main_mem_ack <= 0;
+            rd_mem_reg   <= 0;
+        end else begin
+            if(rd_mem_request) begin
+                rd_mem_reg <= memory[{tag, index, offset}];
+                main_mem_ack <= 1;
+                rd_mem_request <= 0;
+            end else if(wr_mem_request) begin
+                memory[{tag, index, offset}] <= cache_memory[index][offset];
+                main_mem_ack <= 1;
+                wr_mem_request <= 0;
+            end else begin
+                main_mem_ack <= 0;
+            end
+        end
+    end
+
+endmodule
