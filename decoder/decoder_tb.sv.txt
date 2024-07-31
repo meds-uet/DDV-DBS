@@ -1,0 +1,15 @@
+module adder_tb;
+
+reg [3:0] a;
+wire [6:0] y;
+
+//instentiation
+4bit_decoder uut(
+.a(a),
+.y(y)
+);
+
+initial begin
+a = 4'b0001;
+end
+endmodule

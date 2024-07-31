@@ -1,0 +1,35 @@
+class scoreboard #(parameter DATA_WIDTH = 16);
+    bit [DATA_WIDTH-1:0] expected_queue [$];
+    bit [DATA_WIDTH-1:0] expected;
+    //bit [DATA_WIDTH-1:0] actual;
+
+    int match_count, mismatch_count;
+  
+    function void add_expected(input bit [DATA_WIDTH-1:0] expected);
+      expected_queue.push_back(expected);
+    endfunction
+  
+    function void compare_result(input bit [DATA_WIDTH-1:0] actual);
+      if (expected_queue.size() == 0) begin
+        $display("No transaction is available to compare");
+        return;
+      end
+         expected = expected_queue.pop_front();
+      if (expected == actual) begin
+        $display("pass: Expected %h, but got %h", expected, actual);
+        match_count++;
+        $display("Matched congrats Mushaf go and sleep its 3:10am now");
+      end else begin
+        $display("ERROR: Expected %h, and got %h", expected, actual);
+        mismatch_count++;
+        $display("Mismatched Sorry");
+      end
+    endfunction
+  
+    function void report_statistics();
+      $display("Scoreboard Statistics:");
+      $display("  Matches: %0d", match_count);
+      $display("  Mismatches: %0d", mismatch_count);
+      $display("  Items left in queue: %0d", expected_queue.size());
+    endfunction
+  endclass

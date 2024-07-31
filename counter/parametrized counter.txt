@@ -1,0 +1,36 @@
+module counterdesign#(
+parameter weidth=111,
+parameter max_val=100)
+(
+input logic clk,
+input logic reset,
+input logic up,
+input logic down,
+input logic enable, 
+input logic [weidth-1:0]initial_val,
+output logic[weidth-1:0] count
+);
+//initial begin
+//reg [weidth-1:0]initial_val;
+//end
+always_ff @(posedge clk or posedge reset) begin
+if(reset) begin
+count <=0;
+end
+else begin
+//count
+if (enable) begin
+count <= initial_val;
+end
+else if (up) begin
+count <= count+1;
+end
+else if (down) begin
+count <= count-1; 
+end
+/*else if (count == max_val)begin
+count <= 0;
+end*/
+end
+end
+endmodule

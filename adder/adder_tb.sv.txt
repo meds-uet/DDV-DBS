@@ -1,0 +1,76 @@
+module adder_sv;
+
+reg [3:0]input_1;
+reg [3:0]input_2;
+wire [3:0] output_sum;
+
+//instentiation
+
+bit_adder uut(
+.input_1(input_1),
+.input_2(input_2),
+.output_sum(output_sum)
+);
+integer i;
+initial begin
+for(i=0;i<16;i=i+1)
+begin
+input_1 = $random %16;
+input_2 = $random %16;
+#10;
+end
+$stop;
+end
+endmodule//////
+
+module adder_sv;
+
+reg [3:0] input_1;
+reg [3:0] input_2;
+wire [4:0] output_sum;
+
+
+
+// Instantiation of the bit_adder module
+bit_adder uut (
+    .input_1(input_1),
+    .input_2(input_2),
+    .output_sum(output_sum)
+);
+
+//test for special overflow case:
+/*
+initial begin
+
+input_1 =4'b1000;
+input_2 =4'b1111;
+#10;
+end
+endmodule*/
+
+
+// for randomly generated combinations
+integer i;
+initial
+begin
+    
+    for (i = 0; i < 16; i = i + 1) begin
+        input_1 = $random % 16;
+        input_2 = $random % 16;
+        #10;
+    end
+    $stop;
+end
+
+endmodule
+
+
+
+
+
+
+
+
+
+
+
