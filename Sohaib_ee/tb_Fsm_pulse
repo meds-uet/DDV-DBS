@@ -1,0 +1,50 @@
+
+
+module tb_Fsm_pulse();
+  logic x;
+  logic y;
+  logic clk;
+  logic rst;
+
+
+  // Instance
+  Fsm_pulse DUT (.clk(clk), .rst(rst), .x(x), .y(y));
+
+  // Clock generation
+  initial begin
+    clk = 0;
+    forever #5 clk = ~clk;
+  end
+
+  // Task reset
+
+  // Initial vars
+  task int_vars();
+    begin 
+      x = 0;
+      rst=0;
+    end
+  endtask
+
+  // Driver Task 
+  task pulse(input int value);
+    begin
+      x = 1;
+      repeat(value) @(posedge clk);
+      x = 0;
+      $display("%d ", x);  
+    end
+  endtask
+
+  // Monitor Task 
+ initial begin
+ int_vars();
+ pulse(1);
+ 
+ end
+
+  endmodule
+
+
+
+
