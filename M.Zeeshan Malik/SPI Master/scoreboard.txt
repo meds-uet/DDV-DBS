@@ -1,0 +1,23 @@
+class scoreboard;
+  
+  mailbox mon2scb;
+  
+  function new (mailbox mon2scb);
+    this.mon2scb = mon2scb;
+  endfunction
+  
+  task main();
+    transaction trans;
+    repeat(1)
+      begin
+        mon2scb.get(trans);
+        
+          if (trans.tx_data == trans.rx_data) begin
+        $display("Transaction successful: %0h == %0h", trans.tx_data, trans.rx_data);
+      end else begin
+        $display("Transaction mismatch: %0h != %0h", trans.tx_data, trans.rx_data);
+      end
+      trans.display("Scoreboard Transaction");       
+      end
+  endtask
+endclass
