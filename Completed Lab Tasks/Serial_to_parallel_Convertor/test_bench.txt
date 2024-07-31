@@ -1,0 +1,53 @@
+module Test_bench #(parameter w=8 );
+
+logic serial_in;  // for serial_in
+logic msb_first;  // for msb_first  
+logic [w-1:0] parallel_out;  // parallel_out
+logic dv;  // data valid  
+logic rst; 
+logic clk;
+
+S_to_P DUT (.clk(clk),.rst_n(rst),.msb_first(msb_first),
+           .data_valid(dv),.parallel_out(parallel_out),
+            .serial_in(serial_in));
+
+initial begin 
+rst=0;
+#3 rst=~rst;
+#3 
+end 
+
+initial begin 
+clk=0;
+forever #3 clk=~clk;
+end
+
+initial begin
+
+msb_first=1; 
+serial_in=1;
+#6
+
+serial_in=0;
+#6
+
+serial_in=1;
+#6
+
+serial_in=1;
+#6
+
+serial_in=1;
+#6
+
+serial_in=1;
+#6
+
+serial_in=0;
+#6
+
+serial_in=1;
+#6
+$stop;
+end
+endmodule
