@@ -53,7 +53,9 @@ module spi_master_tb();
     #10;
     start_transaction = 0;
     #20;
-    miso = 1'b1; // Simulate MISO line response
+    miso = 1'b0; // Simulate MISO line response
+    #20;
+    miso = 1'b1;
 
     // End of simulation
     #1000;

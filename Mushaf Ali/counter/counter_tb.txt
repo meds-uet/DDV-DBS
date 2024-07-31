@@ -1,0 +1,54 @@
+module counter_tb ();
+localparam weidth = 8;
+localparam max_val = 9;
+reg clk;
+reg reset;
+reg up;
+reg down;
+reg enable;
+reg [weidth-1:0]initial_val;
+wire[weidth-1:0] count;
+//instentiation
+
+counterdesign #(
+.weidth(weidth),
+.max_val(max_val))
+uut (
+.clk(clk),
+.reset(reset),
+.up(up),
+.down(down),
+.enable(enable),
+.initial_val(initial_val),
+.count(count)
+);
+
+//clk generation and other initializations
+initial begin 
+clk=0;
+enable=0;
+up=0;
+down=0;
+forever#5 clk=~clk;
+end
+
+initial begin
+reset=1;
+#10;
+reset=0;
+#10;
+enable = 1;
+#10;
+initial_val=110;
+#10;
+enable = 0;
+#10;
+up=1;
+#10;
+end
+
+always #10 up = 1;
+
+initial #100 $finish;
+
+endmodule

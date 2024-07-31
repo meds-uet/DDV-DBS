@@ -1,0 +1,68 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 07/05/2024 12:33:01 PM
+// Design Name: 
+// Module Name: fifo_tb
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+module fifo_tb ();
+localparam depth=8;
+reg clk;
+reg reset;
+reg w_en;
+reg r_en;
+logic [7:0]data_in;
+reg [7:0]data_out;
+wire full_fifo;
+wire empty_fifo;
+//reg wr_ptr;
+//reg rd_ptr;
+//reg count;
+//instentiation
+fifo #(
+.depth(depth))
+uut (
+.clk(clk),
+.reset(reset),
+.w_en(w_en),
+.r_en(r_en),
+.data_in(data_in),
+.data_out(data_out),
+.full_fifo(full_fifo),
+.empty_fifo(empty_fifo)
+);
+//clk generation
+initial begin
+clk=0;
+forever#5 clk=~clk;
+end
+
+initial begin
+reset=1;
+#30;
+
+reset=0;
+#10;
+data_in = 8'b10101010;
+#10;
+r_en=1;
+#10;
+w_en=1;
+#10;
+//empty_fifo =1;
+//#10;
+//count=1;
+end
+endmodule

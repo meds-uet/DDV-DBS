@@ -1,0 +1,12 @@
+4-Bit Full Adder:
+
+This repository contains the SystemVerilog code for a 4-bit full adder along with its test bench. The adder performs bitwise addition of two 4-bit numbers, including a carry-in and producing a carry-out.
+
+4-Bit Full Adder:
+
+The 4-bit full adder module performs bitwise addition of two 4-bit numbers (A and B) along with a carry-in (Cin), and produces a 4-bit sum (Sum) and a carry-out (Cout).
+
+It contains 2 files:
+
+-The design file named "full_adder.sv"
+-The test bench file named "tb.sv"

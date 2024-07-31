@@ -1,0 +1,19 @@
+module alu_design(
+input logic [15:0] a,
+input logic [15:0] b,
+input logic [2:0] sel,
+output logic [15:0] out
+);
+always@(*) begin
+case(sel)
+3'b000 : out=a+b;
+3'b001 : out=a-b;
+3'b010 : out=a&b;
+3'b011 : out=a|b;
+3'b100 : out=a^b;
+//3'b101 : out=Nill;
+//3'b110 : out=NILL;
+//3'b111 : out=Nill;
+endcase
+end
+endmodule

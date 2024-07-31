@@ -1,0 +1,110 @@
+module cache_memory(
+
+input logic clk,
+input logic rst,
+
+
+input logic [31:0] write_data,
+output logic [31:0] read_data,
+
+input logic [31:0] address_in_cache,
+input logic [31:0] address_in_main_mem,
+
+input logic read,
+input logic write
+
+
+//input logic byte1,
+//input logic word1,
+//input logic double_word1,
+
+);
+//cache memory
+reg [149:0] cache [0:255];
+
+
+logic cache_miss;
+logic cache_hit; 
+
+logic flush_done;
+logic cache_flush;
+
+logic main_mem_read_ack;
+logic main_mem_write_ack;
+
+logic [7:0]index_bits;
+logic [21:0] tag_bits;
+
+
+
+
+typedef enum logic [2:0]{IDLE,PROCESS_REQUEST,WRITE_BACK,CACHE_ALLOCATE,FLUSH}state_t;
+start_t current_state,next_state;
+
+always_ff@(posedge clk)begin
+if(!rst)begin
+current_state<=IDLE;
+end else begin
+current_state<=next_state;
+end
+
+
+always_ff@(posedge clk)begin
+case(current_state)
+IDLE : begin
+if(read || write)begin
+tag_bits <= address_in_cache [31:12];
+index_bits<= address_in_cache [11:4];
+end
+end
+
+PROCESS_REQUEST : begin
+if (cache[index_bits][19:0] == tag_bits && cache[129]==1)begin
+cache_hit<=1;
+end 
+
+else if (write)  begin
+cache[index_bits][19:0]<=write_data;
+end
+else if (read) begin
+read_data<=cache[index_bits][19:0];
+end
+
+next_state<=IDLE;
+
+else begin
+if(cache[128] == 0 )begin
+cache_miss<=1;
+next_state<=CACHE_ALLOCATE;                                  //NOTE//
+end else if (cache[128] == 1)begin              //cache[129] is valid bit and cache[128] is dirty bit//
+cache_miss<=1;
+next_state<= WRITE_BACK;
+end
+end
+end
+
+CACHE_ALLOCATE : begin
+if(read && main_mem_read_ack)begin
+address_in<=address_in_main_mem;
+read_data<=main_mem[address_in];
+main_mem_read_ack <= read_ack;
+next_state<=PROCESS_REQUEST;
+end else begin
+next_state<=CACHE_ALLOCATE;
+end
+end
+end
+
+
+WRITE_BACK : begin
+if(write && main_mem_write_ack)begin
+address_in<=address_in_main_mem;
+main_mem[address_in]<=write_data;
+main_mem_write_ack<=write_ack;
+next_state<=CACHE_ALLOCATE;
+end else begin
+next_state<=WRITE_BACK;
+end
+end
+
+endmodule
