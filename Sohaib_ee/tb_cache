@@ -1,0 +1,154 @@
+module tb_cache;
+
+  // Parameters
+  parameter ADDRESS_WIDTH = 32;
+  parameter DATA_WIDTH    = 32;
+  parameter CACHE_SIZE    = 256;
+  parameter OFFSET_SIZE   = 4;
+  parameter INDEX_SIZE    = 8;
+  parameter MEMORY_SIZE   = 1024;
+
+  // DUT signals
+  logic clk;
+  logic rst_n;
+  logic [ADDRESS_WIDTH-1:0] cpu_address;
+  logic cpu_wr_request;
+  logic cpu_rd_request;
+  logic [DATA_WIDTH-1:0] cpu_wr_data;
+  logic [DATA_WIDTH-1:0] cpu_rd_data;
+
+  // Instantiate the DUT
+  Cache_controller #(
+    .ADDRESS_WIDTH(ADDRESS_WIDTH),
+    .DATA_WIDTH(DATA_WIDTH),
+    .CACHE_SIZE(CACHE_SIZE),
+    .OFFSET_SIZE(OFFSET_SIZE),
+    .INDEX_SIZE(INDEX_SIZE),
+    .MEMORY_SIZE(MEMORY_SIZE)
+  ) dut (
+    .clk(clk),
+    .rst_n(rst_n),
+    .cpu_address(cpu_address),
+    .cpu_wr_request(cpu_wr_request),
+    .cpu_rd_request(cpu_rd_request),
+    .cpu_wr_data(cpu_wr_data),
+    .cpu_rd_data(cpu_rd_data)
+  );
+
+  // Clock generation
+  initial begin
+    clk = 0;
+    forever #5 clk = ~clk;
+  end
+
+  // Reset generation
+  initial begin
+    rst_n = 0;
+    #20 rst_n = 1;
+  end
+
+  // Test stimulus
+  initial begin
+    // Wait for reset deassertion
+    wait(rst_n == 1);
+
+    // Initialize inputs
+    cpu_address = 0;
+    cpu_wr_request = 0;
+    cpu_rd_request = 0;
+    cpu_wr_data = 0;
+
+    // Test case 1: Write data to cache and read it back
+    @(posedge clk);
+    cpu_wr_request = 1;
+    cpu_address = 32'h00000010; // Address to write
+    cpu_wr_data = 32'hDEADBEEF; // Data to write
+    @(posedge clk);
+    cpu_wr_request = 0;
+
+    // Wait for a few cycles
+    repeat (5) @(posedge clk);
+
+    // Test case 2: Read data from cache
+    @(posedge clk);
+    cpu_rd_request = 1;
+    cpu_address = 32'h00000010; // Address to read
+    @(posedge clk);
+    cpu_rd_request = 0;
+
+    // Wait for a few cycles
+    repeat (5) @(posedge clk);
+
+    // Check the read data
+    if (cpu_rd_data !== 32'hDEADBEEF) begin
+      $display("Test case 2 failed: expected 0xDEADBEEF, got 0x%h", cpu_rd_data);
+    end else begin
+      $display("Test case 2 passed");
+    end
+
+    // Additional test cases can be added here
+
+    // Test case 3: Cache miss and memory access
+    // Write to an address that is not in cache
+    @(posedge clk);
+    cpu_wr_request = 1;
+    cpu_address = 32'h00000100; // Address to write
+    cpu_wr_data = 32'hBEEFDEAD; // Data to write
+    @(posedge clk);
+    cpu_wr_request = 0;
+
+    // Wait for a few cycles
+    repeat (5) @(posedge clk);
+
+    // Read from the same address
+    @(posedge clk);
+    cpu_rd_request = 1;
+    cpu_address = 32'h00000100; // Address to read
+    @(posedge clk);
+    cpu_rd_request = 0;
+
+    // Wait for a few cycles
+    repeat (5) @(posedge clk);
+
+    // Check the read data
+    if (cpu_rd_data !== 32'hBEEFDEAD) begin
+      $display("Test case 3 failed: expected 0xBEEFDEAD, got 0x%h", cpu_rd_data);
+    end else begin
+      $display("Test case 3 passed");
+    end
+
+    // Test case 4: Cache write-back scenario
+    // Write to an address in cache
+    @(posedge clk);
+    cpu_wr_request = 1;
+    cpu_address = 32'h00000020; // Address to write
+    cpu_wr_data = 32'hAABBCCDD; // Data to write
+    @(posedge clk);
+    cpu_wr_request = 0;
+
+    // Wait for a few cycles
+    repeat (5) @(posedge clk);
+
+    // Read from the same address
+    @(posedge clk);
+    cpu_rd_request = 1;
+    cpu_address = 32'h00000020; // Address to read
+    @(posedge clk);
+    cpu_rd_request = 0;
+
+    // Wait for a few cycles
+    repeat (5) @(posedge clk);
+
+    // Check the read data
+    if (cpu_rd_data !== 32'hAABBCCDD) begin
+      $display("Test case 4 failed: expected 0xAABBCCDD, got 0x%h", cpu_rd_data);
+    end else begin
+      $display("Test case 4 passed");
+    end
+
+    // Finish simulation
+    $display("Simulation completed");
+    $finish;
+  end
+
+endmodule
