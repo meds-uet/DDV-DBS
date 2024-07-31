@@ -1,0 +1,60 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11.07.2024 20:28:07
+// Design Name: 
+// Module Name: testbench
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module tb_adder4bit;
+    reg [3:0] a;            // 4-bit register for input a
+    reg [3:0] b;            // 4-bit register for input b
+    wire [4:0] sum;         // 5-bit wire for the output sum
+
+    // Instantiate the adder module
+    adder4bit uut (
+        .a(a),
+        .b(b),
+        .sum(sum)
+    );
+
+    integer i, j;           // Loop indices for exhaustive testing
+    reg [4:0] expected_sum; // Expected sum for comparison
+
+    initial begin
+        // Exhaustively test all possible input combinations
+        for (i = 0; i < 16; i = i + 1) begin
+            for (j = 0; j < 16; j = j + 1) begin
+                a = i; 
+                b = j;
+                expected_sum = a + b;
+
+                // Wait for some time to allow the sum to be computed
+                #10;
+
+                // Verify the adder's functionality
+                if (sum !== expected_sum) begin
+                    $display("Test failed for a = %d, b = %d: expected %d, got %d", a, b, expected_sum, sum);
+                end else begin
+                    $display("Test passed for a = %d, b = %d: expected %d, got %d", a, b, expected_sum, sum);
+                end
+            end
+        end
+        $display("All test cases completed.");
+        $finish;
+    end
+endmodule
